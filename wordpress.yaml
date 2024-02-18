@@ -1,0 +1,60 @@
+apiVersion: '2021-10-01'
+location: <$location>
+name: aciwp1
+properties:
+  containers:
+  - name: wordpress
+    properties:
+      image: bitnami/wordpress
+      environmentVariables:
+      - name: WORDPRESS_DATABASE_HOST
+        value: <$mysqldbfqdn>
+      - name: WORDPRESS_DATABASE_USER
+        secureValue: <$mysqldbuser> 
+      - name: WORDPRESS_DATABASE_PASSWORD
+        secureValue: <$mysqldbpasswd>
+      - name: WORDPRESS_DATABASE_NAME
+        value: wordpress
+      - name: WORDPRESS_USERNAME
+        secureValue: wp_admin
+      - name: WORDPRESS_PASSWORD
+        secureValue: wp_password
+      - name: WORDPRESS_BLOG_NAME
+        value: WordpressBLOG
+      - name: WORDPRESS_FIRST_NAME
+        secureValue: wp_admin_firstname
+      - name: WORDPRESS_LAST_NAME
+        secureValue: wp_admin_lastname
+      - name: WORDPRESS_ENABLE_HTTPS
+        value: true
+      ports:
+      - port: 8080
+        protocol: TCP
+      - port: 8443
+        protocol: TCP
+      resources:
+        requests:
+          cpu: 1.0
+          memoryInGB: 2.0
+      volumeMounts:
+      - mountPath: /bitnami/wordpress
+        name: wwwvolume
+      - mountPath: /certs
+        name: certvolume
+  restartPolicy: Always
+  osType: Linux
+  subnetIds:
+    - id: <$acisubnetid>
+  volumes:
+  - name: wwwvolume
+    azureFile:
+      sharename: wwwroot
+      storageAccountName: <$storageacct>
+      storageAccountKey: <$storageacctkey>
+  - name: certvolume
+    azureFile:
+      sharename: cert
+      storageAccountName: <$storageacct>
+      storageAccountKey: <$storageacctkey>
+tags: {}
+type: Microsoft.ContainerInstance/containerGroups
